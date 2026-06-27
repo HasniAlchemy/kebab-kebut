@@ -1,19 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Pembukuan Kebab Kebut</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pembukuan Kebab Kebut</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <h1>Pembukuan Kebab Kebut</h1>
 
+<label>Hari/Tanggal:</label>
 <input type="date" id="tanggal">
 
-<div id="stok-harian"></div>
-<div id="stok-gerobak"></div>
-<div id="penjualan"></div>
-<div id="keuangan"></div>
+<h2>Bahan Baku Harian</h2>
+
+<table border="1">
+<tr>
+<th>Barang</th>
+<th>Sisa Awal</th>
+<th>Masuk</th>
+<th>Pakai</th>
+<th>Rusak</th>
+</tr>
+
+<tr>
+<td>Daging</td>
+<td><input id="daging_sisa"></td>
+<td><input id="daging_masuk"></td>
+<td><input id="daging_pakai"></td>
+<td><input id="daging_rusak"></td>
+</tr>
+
+<tr>
+<td>Kulit Besar</td>
+<td><input id="kulit_besar_sisa"></td>
+<td><input id="kulit_besar_masuk"></td>
+<td><input id="kulit_besar_pakai"></td>
+<td><input id="kulit_besar_rusak"></td>
+</tr>
+
+<tr>
+<td>Kulit Sedang</td>
+<td><input id="kulit_sedang_sisa"></td>
+<td><input id="kulit_sedang_masuk"></td>
+<td><input id="kulit_sedang_pakai"></td>
+<td><input id="kulit_sedang_rusak"></td>
+</tr>
+
+<tr>
+<td>Kulit Kecil</td>
+<td><input id="kulit_kecil_sisa"></td>
+<td><input id="kulit_kecil_masuk"></td>
+<td><input id="kulit_kecil_pakai"></td>
+<td><input id="kulit_kecil_rusak"></td>
+</tr>
+
+<tr>
+<td>Lettuce</td>
+<td><input id="lettuce_sisa"></td>
+<td><input id="lettuce_masuk"></td>
+<td><input id="lettuce_pakai"></td>
+<td><input id="lettuce_rusak"></td>
+</tr>
+
+<tr>
+<td>Timun</td>
+<td><input id="timun_sisa"></td>
+<td><input id="timun_masuk"></td>
+<td><input id="timun_pakai"></td>
+<td><input id="timun_rusak"></td>
+</tr>
+</table>
+
+<button onclick="simpanData()">Simpan Data</button>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="supabase.js"></script>

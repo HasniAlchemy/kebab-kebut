@@ -1,22 +1,29 @@
-window.onload = async function(){
-  const { data } = await supabaseClient
+window.onload = async function () {
+  const { data, error } = await supabaseClient
     .from("keuangan")
     .select("*")
-    .order("tanggal",{ascending:false});
+    .order("tanggal", { ascending: false });
 
-  let html = "<table><tr><th>Tanggal</th><th>Uang Masuk</th><th>Total Pengeluaran</th><th>Sisa</th></tr>";
+  if (error) {
+    console.log(error);
+    return;
+  }
 
-  data.forEach(item=>{
-    html += `
-    <tr>
-      <td><a href="detail.html?tanggal=${item.tanggal}">${item.tanggal}</a></td>
-      <td>${item.uang_masuk}</td>
-      <td>${item.total_pengeluaran}</td>
-      <td>${item.sisa}</td>
-    </tr>`;
+  const tbody = document.getElementById("history-data");
+  tbody.innerHTML = "";
+
+  data.forEach(item => {
+    tbody.innerHTML += `
+      <tr>
+        <td>
+          <a href="detail.html?tanggal=${item.tanggal}">
+            ${item.tanggal}
+          </a>
+        </td>
+        <td>${item.uang_masuk || 0}</td>
+        <td>${item.total_pengeluaran || 0}</td>
+        <td>${item.sisa || 0}</td>
+      </tr>
+    `;
   });
-
-  html += "</table>";
-
-  document.getElementById("history-list").innerHTML = html;
-}
+};

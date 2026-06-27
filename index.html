@@ -1,77 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pembukuan Kebab Kebut</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pembukuan Kebab Kebut</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Pembukuan Kebab Kebut</h1>
+<div class="container">
 
-<label>Tanggal</label>
-<input type="date" id="tanggal">
+  <h1>Pembukuan Kebab Kebut</h1>
 
-<h2>Stok Harian</h2>
-<table>
-<thead>
-<tr>
-<th>Barang</th>
-<th>Sisa Awal</th>
-<th>Masuk</th>
-<th>Jumlah</th>
-<th>Pakai</th>
-<th>Rusak</th>
-<th>Sisa Akhir</th>
-</tr>
-</thead>
-<tbody id="stok-harian"></tbody>
-</table>
+  <div class="section">
+    <label for="tanggal">Tanggal</label>
+    <input type="date" id="tanggal">
+  </div>
 
-<h2>Stok Gerobak</h2>
-<table>
-<thead>
-<tr>
-<th>Barang</th>
-<th>Sisa Awal</th>
-<th>Masuk</th>
-<th>Jumlah</th>
-<th>Pakai</th>
-<th>Rusak</th>
-<th>Sisa Akhir</th>
-</tr>
-</thead>
-<tbody id="stok-gerobak"></tbody>
-</table>
+  <!-- STOK HARIAN -->
+  <div class="section">
+    <h2>Stok Harian</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Barang</th>
+          <th>Sisa Awal</th>
+          <th>Masuk</th>
+          <th>Jumlah</th>
+          <th>Pakai</th>
+          <th>Rusak</th>
+          <th>Sisa Akhir</th>
+        </tr>
+      </thead>
+      <tbody id="stok-harian"></tbody>
+    </table>
+  </div>
 
-<h2>Penjualan</h2>
-<table>
-<thead>
-<tr>
-<th>Menu</th>
-<th>Harga</th>
-<th>Qty</th>
-<th>Total</th>
-</tr>
-</thead>
-<tbody id="penjualan"></tbody>
-</table>
+  <!-- STOK GEROBAK -->
+  <div class="section">
+    <h2>Stok Gerobak</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Barang</th>
+          <th>Sisa Awal</th>
+          <th>Masuk</th>
+          <th>Jumlah</th>
+          <th>Pakai</th>
+          <th>Rusak</th>
+          <th>Sisa Akhir</th>
+        </tr>
+      </thead>
+      <tbody id="stok-gerobak"></tbody>
+    </table>
+  </div>
 
-<h2>Keuangan</h2>
+  <!-- PENJUALAN -->
+  <div class="section">
+    <h2>Penjualan</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Menu</th>
+          <th>Harga</th>
+          <th>Qty</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="penjualan"></tbody>
+    </table>
+  </div>
 
-<input id="bonus" placeholder="Bonus">
-<input id="shopee" placeholder="Shopee">
-<input id="qris" placeholder="QRIS">
-<input id="pengeluaran" placeholder="Pengeluaran">
-<input id="pengeluaran1" placeholder="Pengeluaran 1">
-<input id="pengeluaran2" placeholder="Pengeluaran 2">
-<input id="pengeluaran3" placeholder="Pengeluaran 3">
-<input id="pengeluaran4" placeholder="Pengeluaran 4">
-<input id="pengeluaran5" placeholder="Pengeluaran 5">
+  <!-- KEUANGAN -->
+  <div class="section">
+    <h2>Keuangan</h2>
 
-<button onclick="simpanSemua()">Simpan Semua</button>
-<button onclick="window.location.href='history.html'">Lihat History</button>
+    <input type="number" id="bonus" placeholder="Bonus">
+    <input type="number" id="shopee" placeholder="Shopee">
+    <input type="number" id="qris" placeholder="QRIS">
+    <input type="number" id="pengeluaran" placeholder="Pengeluaran">
+    <input type="number" id="pengeluaran1" placeholder="Pengeluaran 1">
+    <input type="number" id="pengeluaran2" placeholder="Pengeluaran 2">
+    <input type="number" id="pengeluaran3" placeholder="Pengeluaran 3">
+    <input type="number" id="pengeluaran4" placeholder="Pengeluaran 4">
+    <input type="number" id="pengeluaran5" placeholder="Pengeluaran 5">
+  </div>
+
+  <!-- BUTTON -->
+  <div class="section tombol">
+    <button onclick="simpanSemua()">Simpan Semua</button>
+    <button onclick="window.location.href='history.html'">Lihat History</button>
+  </div>
+
+</div>
+
+<script>
+  // otomatis isi tanggal hari ini
+  document.getElementById("tanggal").valueAsDate = new Date();
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="supabase.js"></script>

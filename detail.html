@@ -1,14 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<title>Detail Laporan</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail Pembukuan</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Detail Laporan</h1>
+<div class="container">
 
-<div id="detail-data"></div>
+<h1>Detail Pembukuan</h1>
+
+<h2 id="tanggal-detail"></h2>
+
+<div id="stok-harian-detail"></div>
+<div id="stok-gerobak-detail"></div>
+<div id="penjualan-detail"></div>
+<div id="keuangan-detail"></div>
+
+<br>
+<button onclick="window.location.href='history.html'">Kembali ke History</button>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="supabase.js"></script>

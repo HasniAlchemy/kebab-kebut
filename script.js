@@ -9,26 +9,24 @@ window.onload = async function () {
   buatMenu();
 };
 
+// =======================
 // AMBIL MASTER
+// =======================
 async function ambilMaster() {
-  const { data: harian, error: e1 } = await supabaseClient
+  const { data: harian } = await supabaseClient
     .from("master_stok_harian")
     .select("*")
     .order("id");
 
-  const { data: gerobak, error: e2 } = await supabaseClient
+  const { data: gerobak } = await supabaseClient
     .from("master_stok_gerobak")
     .select("*")
     .order("id");
 
-  const { data: menu, error: e3 } = await supabaseClient
+  const { data: menu } = await supabaseClient
     .from("master_menu")
     .select("*")
     .order("id");
-
-  console.log("Master Harian:", harian, e1);
-  console.log("Master Gerobak:", gerobak, e2);
-  console.log("Master Menu:", menu, e3);
 
   stokHarian = harian ? harian.map(x => x.barang) : [];
   stokGerobak = gerobak ? gerobak.map(x => x.barang) : [];
@@ -38,7 +36,9 @@ async function ambilMaster() {
   })) : [];
 }
 
+// =======================
 // AMBIL SISA TERAKHIR
+// =======================
 async function ambilSisa(table, barang) {
   const { data } = await supabaseClient
     .from(table)
@@ -54,7 +54,9 @@ async function ambilSisa(table, barang) {
   return 0;
 }
 
+// =======================
 // BUAT TABEL STOK
+// =======================
 async function buatStok(id, daftar, tableName) {
   const tbody = document.getElementById(id);
   tbody.innerHTML = "";
@@ -78,7 +80,9 @@ async function buatStok(id, daftar, tableName) {
   }
 }
 
-// HITUNG REALTIME
+// =======================
+// HITUNG REALTIME STOK
+// =======================
 function hitungRealtime(barang) {
   const sisa = Number(document.getElementById(`${barang}_sisa`)?.value) || 0;
   const masuk = Number(document.getElementById(`${barang}_masuk`)?.value) || 0;
@@ -94,7 +98,9 @@ function hitungRealtime(barang) {
   sinkronQty(barang, pakai);
 }
 
+// =======================
 // BUAT MENU PENJUALAN
+// =======================
 function buatMenu() {
   const tbody = document.getElementById("penjualan");
   tbody.innerHTML = "";
@@ -113,7 +119,9 @@ function buatMenu() {
   }
 }
 
-// SINKRON PAKAI → QTY
+// =======================
+// SINKRON PAKAI KE QTY
+// =======================
 function sinkronQty(barang, qty) {
   const mapping = {
     "Kulit Besar": "Kebab Besar",
@@ -134,7 +142,9 @@ function sinkronQty(barang, qty) {
   }
 }
 
+// =======================
 // HITUNG TOTAL MENU
+// =======================
 function hitungMenu(nama) {
   const menu = menuList.find(x => x.nama === nama);
   if (!menu) return;
@@ -145,90 +155,105 @@ function hitungMenu(nama) {
   document.getElementById(`${nama}_total`).value = total;
 }
 
+// =======================
 // SIMPAN SEMUA
+// =======================
 async function simpanSemua() {
   const tanggal = document.getElementById("tanggal").value;
 
+  if (!tanggal) {
+    alert("Tanggal wajib diisi");
+    return;
+  }
+
   let totalPenjualan = 0;
 
-  // simpan stok harian
-  for (let barang of stokHarian) {
-    await simpanStok("stok_harian", barang, tanggal);
-  }
+  try {
+    // STOK HARIAN
+    for (let barang of stokHarian) {
+      await simpanStok("stok_harian", barang, tanggal);
+    }
 
-  // simpan stok gerobak
-  for (let barang of stokGerobak) {
-    await simpanStok("stok_gerobak", barang, tanggal);
-  }
+    // STOK GEROBAK
+    for (let barang of stokGerobak) {
+      await simpanStok("stok_gerobak", barang, tanggal);
+    }
 
-  // simpan penjualan
-  for (let item of menuList) {
-    const qty = Number(document.getElementById(`${item.nama}_qty`)?.value) || 0;
-    const total = qty * item.harga;
+    // PENJUALAN
+    for (let item of menuList) {
+      const qty = Number(document.getElementById(`${item.nama}_qty`)?.value) || 0;
+      const total = qty * item.harga;
 
-    totalPenjualan += total;
+      totalPenjualan += total;
 
-    await supabaseClient.from("penjualan").insert([{
+      await supabaseClient.from("penjualan").insert([{
+        tanggal,
+        menu: item.nama,
+        harga: item.harga,
+        qty,
+        total
+      }]);
+    }
+
+    // KEUANGAN
+    const bonus = Number(document.getElementById("bonus")?.value) || 0;
+    const shopee = Number(document.getElementById("shopee")?.value) || 0;
+    const qris = Number(document.getElementById("qris")?.value) || 0;
+    const pengeluaran = Number(document.getElementById("pengeluaran")?.value) || 0;
+    const pengeluaran1 = Number(document.getElementById("pengeluaran1")?.value) || 0;
+    const pengeluaran2 = Number(document.getElementById("pengeluaran2")?.value) || 0;
+    const pengeluaran3 = Number(document.getElementById("pengeluaran3")?.value) || 0;
+    const pengeluaran4 = Number(document.getElementById("pengeluaran4")?.value) || 0;
+    const pengeluaran5 = Number(document.getElementById("pengeluaran5")?.value) || 0;
+
+    const total_pengeluaran =
+      pengeluaran +
+      pengeluaran1 +
+      pengeluaran2 +
+      pengeluaran3 +
+      pengeluaran4 +
+      pengeluaran5;
+
+    const uang_masuk = totalPenjualan;
+
+    const sisa =
+      totalPenjualan -
+      (total_pengeluaran + bonus + shopee + qris);
+
+    const { error } = await supabaseClient.from("keuangan").insert([{
       tanggal,
-      menu: item.nama,
-      harga: item.harga,
-      qty,
-      total
+      bonus,
+      shopee,
+      qris,
+      pengeluaran,
+      pengeluaran1,
+      pengeluaran2,
+      pengeluaran3,
+      pengeluaran4,
+      pengeluaran5,
+      total_pengeluaran,
+      uang_masuk,
+      sisa
     }]);
+
+    if (error) {
+      console.log(error);
+      alert("Gagal simpan keuangan");
+      return;
+    }
+
+    alert("Semua data berhasil disimpan");
+    window.location.href = "history.html";
+
+  } catch (err) {
+    console.log(err);
+    alert("Ada error saat menyimpan");
   }
-
-  // KEUANGAN
-  const bonus = Number(document.getElementById("bonus")?.value) || 0;
-  const shopee = Number(document.getElementById("shopee")?.value) || 0;
-  const qris = Number(document.getElementById("qris")?.value) || 0;
-  const pengeluaran = Number(document.getElementById("pengeluaran")?.value) || 0;
-  const pengeluaran1 = Number(document.getElementById("pengeluaran1")?.value) || 0;
-  const pengeluaran2 = Number(document.getElementById("pengeluaran2")?.value) || 0;
-  const pengeluaran3 = Number(document.getElementById("pengeluaran3")?.value) || 0;
-  const pengeluaran4 = Number(document.getElementById("pengeluaran4")?.value) || 0;
-  const pengeluaran5 = Number(document.getElementById("pengeluaran5")?.value) || 0;
-
-  // TOTAL PENGELUARAN (tidak termasuk bonus/shopee/qris)
-  const total_pengeluaran =
-    pengeluaran +
-    pengeluaran1 +
-    pengeluaran2 +
-    pengeluaran3 +
-    pengeluaran4 +
-    pengeluaran5;
-
-  // UANG MASUK = PENJUALAN
-  const uang_masuk = totalPenjualan;
-
-  // SISA = penjualan - (pengeluaran + bonus + shopee + qris)
-  const sisa =
-    totalPenjualan - (
-      total_pengeluaran +
-      bonus +
-      shopee +
-      qris
-    );
-
-  await supabaseClient.from("keuangan").insert([{
-    tanggal,
-    bonus,
-    shopee,
-    qris,
-    pengeluaran,
-    pengeluaran1,
-    pengeluaran2,
-    pengeluaran3,
-    pengeluaran4,
-    pengeluaran5,
-    total_pengeluaran,
-    uang_masuk,
-    sisa
-  }]);
-
-  alert("Data berhasil disimpan");
 }
 
+// =======================
 // SIMPAN STOK
+// =======================
 async function simpanStok(table, barang, tanggal) {
   const sisa_awal = Number(document.getElementById(`${barang}_sisa`)?.value) || 0;
   const masuk = Number(document.getElementById(`${barang}_masuk`)?.value) || 0;

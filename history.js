@@ -1,18 +1,24 @@
 window.onload = async function () {
-  const { data, error } = await supabaseClient
+  const { data: keuangan, error } = await supabaseClient
     .from("keuangan")
     .select("*")
     .order("tanggal", { ascending: false });
 
-  if (error) {
-    console.log(error);
-    return;
-  }
+  console.log("History:", keuangan, error);
 
   const tbody = document.getElementById("history-data");
   tbody.innerHTML = "";
 
-  data.forEach(item => {
+  if (!keuangan || keuangan.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="13">Belum ada data</td>
+      </tr>
+    `;
+    return;
+  }
+
+  keuangan.forEach(item => {
     tbody.innerHTML += `
       <tr>
         <td>
@@ -21,9 +27,5 @@ window.onload = async function () {
           </a>
         </td>
         <td>${item.uang_masuk || 0}</td>
-        <td>${item.total_pengeluaran || 0}</td>
-        <td>${item.sisa || 0}</td>
-      </tr>
-    `;
-  });
-};
+        <td>${item.bonus || 0}</td>
+        <td>${item

@@ -30,7 +30,7 @@ async function ambilSisa(table, barang){
     .limit(1);
 
   if(data.length > 0){
-    return data[0].sisa_akhir || 0;
+    return Number(data[0].sisa_akhir) || 0;
   }
 
   return 0;
@@ -45,14 +45,30 @@ async function buatStok(id, daftar, tableName){
     tbody.innerHTML += `
     <tr>
       <td>${barang}</td>
-      <td><input id="${barang}_sisa" value="${sisa}"></td>
-      <td><input id="${barang}_masuk"></td>
+      <td><input id="${barang}_sisa" value="${sisa}" oninput="hitungRealtime('${barang}')"></td>
+      <td><input id="${barang}_masuk" oninput="hitungRealtime('${barang}')"></td>
       <td><input id="${barang}_jumlah" readonly></td>
-      <td><input id="${barang}_pakai"></td>
-      <td><input id="${barang}_rusak"></td>
+      <td><input id="${barang}_pakai" oninput="hitungRealtime('${barang}')"></td>
+      <td><input id="${barang}_rusak" oninput="hitungRealtime('${barang}')"></td>
       <td><input id="${barang}_akhir" readonly></td>
-    </tr>`;
+    </tr>
+    `;
+
+    hitungRealtime(barang);
   }
+}
+
+function hitungRealtime(barang){
+  const sisa = Number(document.getElementById(`${barang}_sisa`).value) || 0;
+  const masuk = Number(document.getElementById(`${barang}_masuk`).value) || 0;
+  const pakai = Number(document.getElementById(`${barang}_pakai`).value) || 0;
+  const rusak = Number(document.getElementById(`${barang}_rusak`).value) || 0;
+
+  const jumlah = sisa + masuk;
+  const sisa_akhir = jumlah - pakai - rusak;
+
+  document.getElementById(`${barang}_jumlah`).value = jumlah;
+  document.getElementById(`${barang}_akhir`).value = sisa_akhir;
 }
 
 function buatMenu(){
@@ -63,10 +79,18 @@ function buatMenu(){
     <tr>
       <td>${item.nama}</td>
       <td>${item.harga}</td>
-      <td><input id="${item.nama}_qty"></td>
+      <td><input id="${item.nama}_qty" oninput="hitungMenu('${item.nama}', ${item.harga})"></td>
       <td><input id="${item.nama}_total" readonly></td>
-    </tr>`;
+    </tr>
+    `;
   }
+}
+
+function hitungMenu(nama, harga){
+  const qty = Number(document.getElementById(`${nama}_qty`).value) || 0;
+  const total = qty * harga;
+
+  document.getElementById(`${nama}_total`).value = total;
 }
 
 async function simpanSemua(){

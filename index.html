@@ -69,21 +69,31 @@
       </thead>
       <tbody id="penjualan"></tbody>
     </table>
+
+    <h3>Total Penjualan: Rp <span id="total-penjualan">0</span></h3>
   </div>
 
   <!-- KEUANGAN -->
   <div class="section">
     <h2>Keuangan</h2>
 
-    <input type="number" id="bonus" placeholder="Bonus">
-    <input type="number" id="shopee" placeholder="Shopee">
-    <input type="number" id="qris" placeholder="QRIS">
-    <input type="number" id="pengeluaran" placeholder="Pengeluaran">
-    <input type="number" id="pengeluaran1" placeholder="Pengeluaran 1">
-    <input type="number" id="pengeluaran2" placeholder="Pengeluaran 2">
-    <input type="number" id="pengeluaran3" placeholder="Pengeluaran 3">
-    <input type="number" id="pengeluaran4" placeholder="Pengeluaran 4">
-    <input type="number" id="pengeluaran5" placeholder="Pengeluaran 5">
+    <input type="number" id="bonus" placeholder="Bonus" oninput="hitungKeuangan()">
+    <input type="number" id="shopee" placeholder="Shopee" oninput="hitungKeuangan()">
+    <input type="number" id="qris" placeholder="QRIS" oninput="hitungKeuangan()">
+    <input type="number" id="pengeluaran" placeholder="Pengeluaran" oninput="hitungKeuangan()">
+    <input type="number" id="pengeluaran1" placeholder="Pengeluaran 1" oninput="hitungKeuangan()">
+    <input type="number" id="pengeluaran2" placeholder="Pengeluaran 2" oninput="hitungKeuangan()">
+    <input type="number" id="pengeluaran3" placeholder="Pengeluaran 3" oninput="hitungKeuangan()">
+    <input type="number" id="pengeluaran4" placeholder="Pengeluaran 4" oninput="hitungKeuangan()">
+    <input type="number" id="pengeluaran5" placeholder="Pengeluaran 5" oninput="hitungKeuangan()">
+
+    <h3>Total Keuangan: Rp <span id="total-keuangan">0</span></h3>
+  </div>
+
+  <!-- SISA UANG -->
+  <div class="section">
+    <h2>Sisa Uang</h2>
+    <h1>Rp <span id="sisa-uang">0</span></h1>
   </div>
 
   <!-- BUTTON -->
@@ -95,7 +105,6 @@
 </div>
 
 <script>
-  // otomatis isi tanggal hari ini
   document.getElementById("tanggal").valueAsDate = new Date();
 </script>
 

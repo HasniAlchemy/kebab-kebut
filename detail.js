@@ -152,29 +152,72 @@ async function loadKeuangan(tanggal) {
 
   const k = data[0];
 
-  const fields = [
-    ["Bonus", k.bonus],
-    ["Shopee", k.shopee],
-    ["QRIS", k.qris],
-    ["Pengeluaran", k.pengeluaran],
-    ["Pengeluaran 1", k.pengeluaran1],
-    ["Pengeluaran 2", k.pengeluaran2],
-    ["Pengeluaran 3", k.pengeluaran3],
-    ["Pengeluaran 4", k.pengeluaran4],
-    ["Pengeluaran 5", k.pengeluaran5],
-    ["Total Pengeluaran", k.total_pengeluaran],
-    ["Uang Masuk", k.uang_masuk],
-    ["Sisa", k.sisa]
-  ];
+  // pemasukan tetap
+  if (Number(k.bonus) > 0) {
+    tbody.innerHTML += `
+      <tr>
+        <td>Bonus</td>
+        <td>${k.bonus}</td>
+      </tr>
+    `;
+  }
 
-  fields.forEach(([nama, nilai]) => {
-    if (Number(nilai) > 0) {
+  if (Number(k.shopee) > 0) {
+    tbody.innerHTML += `
+      <tr>
+        <td>Shopee</td>
+        <td>${k.shopee}</td>
+      </tr>
+    `;
+  }
+
+  if (Number(k.qris) > 0) {
+    tbody.innerHTML += `
+      <tr>
+        <td>QRIS</td>
+        <td>${k.qris}</td>
+      </tr>
+    `;
+  }
+
+  // pengeluaran utama
+  if (Number(k.pengeluaran) > 0) {
+    tbody.innerHTML += `
+      <tr>
+        <td>Pengeluaran Utama</td>
+        <td>${k.pengeluaran}</td>
+      </tr>
+    `;
+  }
+
+  // detail pengeluaran dinamis
+  for (let i = 1; i <= 5; i++) {
+    const nominal = k[`pengeluaran${i}`];
+    const ket = k[`ket_pengeluaran${i}`] || `Pengeluaran ${i}`;
+
+    if (Number(nominal) > 0) {
       tbody.innerHTML += `
         <tr>
-          <td>${nama}</td>
-          <td>${nilai}</td>
+          <td>${ket}</td>
+          <td>${nominal}</td>
         </tr>
       `;
     }
-  });
+  }
+
+  // ringkasan
+  tbody.innerHTML += `
+    <tr>
+      <td><b>Total Keuangan</b></td>
+      <td><b>${k.total_pengeluaran}</b></td>
+    </tr>
+    <tr>
+      <td><b>Uang Masuk</b></td>
+      <td><b>${k.uang_masuk}</b></td>
+    </tr>
+    <tr>
+      <td><b>Sisa</b></td>
+      <td><b>${k.sisa}</b></td>
+    </tr>
+  `;
 }

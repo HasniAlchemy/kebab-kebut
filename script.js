@@ -4,11 +4,22 @@ let menuList = [];
 
 window.onload = async function () {
   await ambilMaster();
+
+  console.log("MASTER MENU:", menuList);
+
   await buatStok("stok-harian", stokHarian, "stok_harian");
   await buatStok("stok-gerobak", stokGerobak, "stok_gerobak");
+
   buatMenu();
   hitungKeuangan();
 };
+
+// =======================
+// BERSIHKAN ID HTML
+// =======================
+function safeId(text) {
+  return text.replace(/\s+/g, "_").replace(/\+/g, "plus");
+}
 
 // =======================
 // AMBIL MASTER
@@ -31,10 +42,13 @@ async function ambilMaster() {
 
   stokHarian = harian?.map(x => x.barang) || [];
   stokGerobak = gerobak?.map(x => x.barang) || [];
-  menuList = menu?.map(x => ({
-    nama: x.menu,
-    harga: Number(x.harga)
-  })) || [];
+
+  menuList = (menu || [])
+    .filter(x => x.menu)
+    .map(x => ({
+      nama: x.menu,
+      harga: Number(x.harga) || 0
+    }));
 }
 
 // =======================
@@ -52,7 +66,7 @@ async function ambilSisa(table, barang) {
 }
 
 // =======================
-// BUAT TABEL STOK
+// BUAT STOK
 // =======================
 async function buatStok(id, daftar, tableName) {
   const tbody = document.getElementById(id);
@@ -64,12 +78,12 @@ async function buatStok(id, daftar, tableName) {
     tbody.innerHTML += `
       <tr>
         <td>${barang}</td>
-        <td><input type="number" id="${barang}_sisa" value="${sisa}" oninput="hitungRealtime('${barang}')"></td>
-        <td><input type="number" id="${barang}_masuk" value="0" oninput="hitungRealtime('${barang}')"></td>
-        <td><input type="number" id="${barang}_jumlah" readonly></td>
-        <td><input type="number" id="${barang}_pakai" value="0" oninput="hitungRealtime('${barang}')"></td>
-        <td><input type="number" id="${barang}_rusak" value="0" oninput="hitungRealtime('${barang}')"></td>
-        <td><input type="number" id="${barang}_akhir" readonly></td>
+        <td><input type="number" id="${safeId(barang)}_sisa" value="${sisa}" oninput="hitungRealtime('${barang}')"></td>
+        <td><input type="number" id="${safeId(barang)}_masuk" value="0" oninput="hitungRealtime('${barang}')"></td>
+        <td><input type="number" id="${safeId(barang)}_jumlah" readonly></td>
+        <td><input type="number" id="${safeId(barang)}_pakai" value="0" oninput="hitungRealtime('${barang}')"></td>
+        <td><input type="number" id="${safeId(barang)}_rusak" value="0" oninput="hitungRealtime('${barang}')"></td>
+        <td><input type="number" id="${safeId(barang)}_akhir" readonly></td>
       </tr>
     `;
 
@@ -81,16 +95,18 @@ async function buatStok(id, daftar, tableName) {
 // HITUNG STOK
 // =======================
 function hitungRealtime(barang) {
-  const sisa = Number(document.getElementById(`${barang}_sisa`).value) || 0;
-  const masuk = Number(document.getElementById(`${barang}_masuk`).value) || 0;
-  const pakai = Number(document.getElementById(`${barang}_pakai`).value) || 0;
-  const rusak = Number(document.getElementById(`${barang}_rusak`).value) || 0;
+  const id = safeId(barang);
+
+  const sisa = Number(document.getElementById(`${id}_sisa`).value) || 0;
+  const masuk = Number(document.getElementById(`${id}_masuk`).value) || 0;
+  const pakai = Number(document.getElementById(`${id}_pakai`).value) || 0;
+  const rusak = Number(document.getElementById(`${id}_rusak`).value) || 0;
 
   const jumlah = sisa + masuk;
   const akhir = jumlah - pakai - rusak;
 
-  document.getElementById(`${barang}_jumlah`).value = jumlah;
-  document.getElementById(`${barang}_akhir`).value = akhir;
+  document.getElementById(`${id}_jumlah`).value = jumlah;
+  document.getElementById(`${id}_akhir`).value = akhir;
 
   sinkronQty(barang, pakai);
 }
@@ -103,17 +119,24 @@ function buatMenu() {
   tbody.innerHTML = "";
 
   menuList.forEach(item => {
+    const id = safeId(item.nama);
+
     tbody.innerHTML += `
       <tr>
         <td>${item.nama}</td>
         <td>${item.harga}</td>
-        <td><input type="number" id="${item.nama}_qty" value="0" oninput="hitungMenu('${item.nama}')"></td>
-        <td><input type="number" id="${item.nama}_total" readonly></td>
+        <td>
+          <input type="number" id="${id}_qty" value="0"
+          oninput="hitungMenu('${item.nama}')">
+        </td>
+        <td>
+          <input type="number" id="${id}_total" readonly>
+        </td>
       </tr>
     `;
-
-    hitungMenu(item.nama);
   });
+
+  menuList.forEach(item => hitungMenu(item.nama));
 }
 
 // =======================
@@ -129,7 +152,9 @@ function sinkronQty(barang, qty) {
   };
 
   if (mapping[barang]) {
-    const input = document.getElementById(`${mapping[barang]}_qty`);
+    const id = safeId(mapping[barang]);
+    const input = document.getElementById(`${id}_qty`);
+
     if (input) {
       input.value = qty;
       hitungMenu(mapping[barang]);
@@ -144,10 +169,12 @@ function hitungMenu(nama) {
   const menu = menuList.find(x => x.nama === nama);
   if (!menu) return;
 
-  const qty = Number(document.getElementById(`${nama}_qty`).value) || 0;
+  const id = safeId(nama);
+
+  const qty = Number(document.getElementById(`${id}_qty`).value) || 0;
   const total = qty * menu.harga;
 
-  document.getElementById(`${nama}_total`).value = total;
+  document.getElementById(`${id}_total`).value = total;
 
   hitungTotalPenjualan();
 }
@@ -159,7 +186,8 @@ function hitungTotalPenjualan() {
   let total = 0;
 
   menuList.forEach(item => {
-    total += Number(document.getElementById(`${item.nama}_total`).value) || 0;
+    const id = safeId(item.nama);
+    total += Number(document.getElementById(`${id}_total`)?.value) || 0;
   });
 
   document.getElementById("total-penjualan").innerText = total;
@@ -167,13 +195,14 @@ function hitungTotalPenjualan() {
 }
 
 // =======================
-// TOTAL KEUANGAN BARU
+// TOTAL KEUANGAN
 // =======================
 function hitungKeuangan() {
   const ids = [
     "bonus",
     "shopee",
     "qris",
+    "pengeluaran",
     "pengeluaran1",
     "pengeluaran2",
     "pengeluaran3",
@@ -216,8 +245,10 @@ async function simpanSemua() {
   }
 
   for (let item of menuList) {
-    const qty = Number(document.getElementById(`${item.nama}_qty`).value) || 0;
-    const total = Number(document.getElementById(`${item.nama}_total`).value) || 0;
+    const id = safeId(item.nama);
+
+    const qty = Number(document.getElementById(`${id}_qty`).value) || 0;
+    const total = Number(document.getElementById(`${id}_total`).value) || 0;
 
     if (qty > 0) {
       await supabaseClient.from("penjualan").insert([{
@@ -235,6 +266,7 @@ async function simpanSemua() {
     bonus: Number(document.getElementById("bonus").value) || 0,
     shopee: Number(document.getElementById("shopee").value) || 0,
     qris: Number(document.getElementById("qris").value) || 0,
+    pengeluaran: Number(document.getElementById("pengeluaran").value) || 0,
 
     pengeluaran1: Number(document.getElementById("pengeluaran1").value) || 0,
     pengeluaran2: Number(document.getElementById("pengeluaran2").value) || 0,
@@ -242,11 +274,11 @@ async function simpanSemua() {
     pengeluaran4: Number(document.getElementById("pengeluaran4").value) || 0,
     pengeluaran5: Number(document.getElementById("pengeluaran5").value) || 0,
 
-    ket_pengeluaran1: document.getElementById("ket_pengeluaran1").value || "",
-    ket_pengeluaran2: document.getElementById("ket_pengeluaran2").value || "",
-    ket_pengeluaran3: document.getElementById("ket_pengeluaran3").value || "",
-    ket_pengeluaran4: document.getElementById("ket_pengeluaran4").value || "",
-    ket_pengeluaran5: document.getElementById("ket_pengeluaran5").value || "",
+    ket_pengeluaran1: document.getElementById("ket_pengeluaran1")?.value || "",
+    ket_pengeluaran2: document.getElementById("ket_pengeluaran2")?.value || "",
+    ket_pengeluaran3: document.getElementById("ket_pengeluaran3")?.value || "",
+    ket_pengeluaran4: document.getElementById("ket_pengeluaran4")?.value || "",
+    ket_pengeluaran5: document.getElementById("ket_pengeluaran5")?.value || "",
 
     total_pengeluaran: Number(document.getElementById("total-keuangan").innerText),
     uang_masuk: Number(document.getElementById("total-penjualan").innerText),
@@ -261,10 +293,12 @@ async function simpanSemua() {
 // SIMPAN STOK
 // =======================
 async function simpanStok(table, barang, tanggal) {
-  const sisa_awal = Number(document.getElementById(`${barang}_sisa`).value) || 0;
-  const masuk = Number(document.getElementById(`${barang}_masuk`).value) || 0;
-  const pakai = Number(document.getElementById(`${barang}_pakai`).value) || 0;
-  const rusak = Number(document.getElementById(`${barang}_rusak`).value) || 0;
+  const id = safeId(barang);
+
+  const sisa_awal = Number(document.getElementById(`${id}_sisa`).value) || 0;
+  const masuk = Number(document.getElementById(`${id}_masuk`).value) || 0;
+  const pakai = Number(document.getElementById(`${id}_pakai`).value) || 0;
+  const rusak = Number(document.getElementById(`${id}_rusak`).value) || 0;
 
   if (sisa_awal === 0 && masuk === 0 && pakai === 0 && rusak === 0) return;
 

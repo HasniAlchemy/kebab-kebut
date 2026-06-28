@@ -3,13 +3,13 @@ window.onload = async function () {
 };
 
 async function loadHistory() {
+  const tbody = document.getElementById("history-table");
+  tbody.innerHTML = "";
+
   const { data, error } = await supabaseClient
     .from("keuangan")
     .select("*")
     .order("tanggal", { ascending: false });
-
-  const tbody = document.getElementById("history-body");
-  tbody.innerHTML = "";
 
   if (error) {
     console.log(error);
@@ -26,12 +26,18 @@ async function loadHistory() {
   }
 
   data.forEach(item => {
+    const totalKeuangan =
+      Number(item.total_pengeluaran || 0) +
+      Number(item.bonus || 0) +
+      Number(item.shopee || 0) +
+      Number(item.qris || 0);
+
     tbody.innerHTML += `
       <tr>
         <td>${item.tanggal}</td>
-        <td>${item.uang_masuk || 0}</td>
-        <td>${item.total_pengeluaran || 0}</td>
-        <td>${item.sisa || 0}</td>
+        <td>${Number(item.uang_masuk).toLocaleString()}</td>
+        <td>${Number(totalKeuangan).toLocaleString()}</td>
+        <td>${Number(item.sisa).toLocaleString()}</td>
         <td>
           <button onclick="lihatDetail('${item.tanggal}')">
             Lihat

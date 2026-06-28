@@ -1,12 +1,37 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>History Pembukuan</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+<h1>History Pembukuan</h1>
+
 <table>
-  <thead>
-    <tr>
-      <th>Tanggal</th>
-      <th>Total Penjualan</th>
-      <th>Total Keuangan</th>
-      <th>Sisa</th>
-      <th>Detail</th>
-    </tr>
-  </thead>
-  <tbody id="history-body"></tbody>
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>Total Penjualan</th>
+<th>Total Keuangan</th>
+<th>Sisa</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody id="history-table"></tbody>
 </table>
+
+<br>
+<button onclick="window.location.href='index.html'">Kembali</button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="supabase.js"></script>
+<script src="history.js"></script>
+
+</body>
+</html>

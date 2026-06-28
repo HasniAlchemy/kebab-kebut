@@ -10,6 +10,9 @@ window.onload = async function () {
   hitungKeuangan();
 };
 
+// =======================
+// AMBIL MASTER
+// =======================
 async function ambilMaster() {
   const { data: harian } = await supabaseClient
     .from("master_stok_harian")
@@ -34,6 +37,9 @@ async function ambilMaster() {
   })) || [];
 }
 
+// =======================
+// AMBIL SISA TERAKHIR
+// =======================
 async function ambilSisa(table, barang) {
   const { data } = await supabaseClient
     .from(table)
@@ -45,6 +51,9 @@ async function ambilSisa(table, barang) {
   return data?.length ? Number(data[0].sisa_akhir) : 0;
 }
 
+// =======================
+// BUAT TABEL STOK
+// =======================
 async function buatStok(id, daftar, tableName) {
   const tbody = document.getElementById(id);
   tbody.innerHTML = "";
@@ -68,6 +77,9 @@ async function buatStok(id, daftar, tableName) {
   }
 }
 
+// =======================
+// HITUNG STOK
+// =======================
 function hitungRealtime(barang) {
   const sisa = Number(document.getElementById(`${barang}_sisa`).value) || 0;
   const masuk = Number(document.getElementById(`${barang}_masuk`).value) || 0;
@@ -83,6 +95,9 @@ function hitungRealtime(barang) {
   sinkronQty(barang, pakai);
 }
 
+// =======================
+// BUAT MENU
+// =======================
 function buatMenu() {
   const tbody = document.getElementById("penjualan");
   tbody.innerHTML = "";
@@ -101,6 +116,9 @@ function buatMenu() {
   });
 }
 
+// =======================
+// SINKRON STOK -> MENU
+// =======================
 function sinkronQty(barang, qty) {
   const mapping = {
     "Kulit Besar": "Kebab Besar",
@@ -119,8 +137,13 @@ function sinkronQty(barang, qty) {
   }
 }
 
+// =======================
+// HITUNG MENU
+// =======================
 function hitungMenu(nama) {
   const menu = menuList.find(x => x.nama === nama);
+  if (!menu) return;
+
   const qty = Number(document.getElementById(`${nama}_qty`).value) || 0;
   const total = qty * menu.harga;
 
@@ -129,6 +152,9 @@ function hitungMenu(nama) {
   hitungTotalPenjualan();
 }
 
+// =======================
+// TOTAL PENJUALAN
+// =======================
 function hitungTotalPenjualan() {
   let total = 0;
 
@@ -140,11 +166,19 @@ function hitungTotalPenjualan() {
   hitungSisa();
 }
 
+// =======================
+// TOTAL KEUANGAN BARU
+// =======================
 function hitungKeuangan() {
   const ids = [
-    "bonus","shopee","qris","pengeluaran",
-    "pengeluaran1","pengeluaran2","pengeluaran3",
-    "pengeluaran4","pengeluaran5"
+    "bonus",
+    "shopee",
+    "qris",
+    "pengeluaran1",
+    "pengeluaran2",
+    "pengeluaran3",
+    "pengeluaran4",
+    "pengeluaran5"
   ];
 
   let total = 0;
@@ -157,6 +191,9 @@ function hitungKeuangan() {
   hitungSisa();
 }
 
+// =======================
+// HITUNG SISA
+// =======================
 function hitungSisa() {
   const jual = Number(document.getElementById("total-penjualan").innerText) || 0;
   const keluar = Number(document.getElementById("total-keuangan").innerText) || 0;
@@ -164,6 +201,9 @@ function hitungSisa() {
   document.getElementById("sisa-uang").innerText = jual - keluar;
 }
 
+// =======================
+// SIMPAN SEMUA
+// =======================
 async function simpanSemua() {
   const tanggal = document.getElementById("tanggal").value;
 
@@ -195,12 +235,19 @@ async function simpanSemua() {
     bonus: Number(document.getElementById("bonus").value) || 0,
     shopee: Number(document.getElementById("shopee").value) || 0,
     qris: Number(document.getElementById("qris").value) || 0,
-    pengeluaran: Number(document.getElementById("pengeluaran").value) || 0,
+
     pengeluaran1: Number(document.getElementById("pengeluaran1").value) || 0,
     pengeluaran2: Number(document.getElementById("pengeluaran2").value) || 0,
     pengeluaran3: Number(document.getElementById("pengeluaran3").value) || 0,
     pengeluaran4: Number(document.getElementById("pengeluaran4").value) || 0,
     pengeluaran5: Number(document.getElementById("pengeluaran5").value) || 0,
+
+    ket_pengeluaran1: document.getElementById("ket_pengeluaran1").value || "",
+    ket_pengeluaran2: document.getElementById("ket_pengeluaran2").value || "",
+    ket_pengeluaran3: document.getElementById("ket_pengeluaran3").value || "",
+    ket_pengeluaran4: document.getElementById("ket_pengeluaran4").value || "",
+    ket_pengeluaran5: document.getElementById("ket_pengeluaran5").value || "",
+
     total_pengeluaran: Number(document.getElementById("total-keuangan").innerText),
     uang_masuk: Number(document.getElementById("total-penjualan").innerText),
     sisa: Number(document.getElementById("sisa-uang").innerText)
@@ -210,6 +257,9 @@ async function simpanSemua() {
   window.location.href = "history.html";
 }
 
+// =======================
+// SIMPAN STOK
+// =======================
 async function simpanStok(table, barang, tanggal) {
   const sisa_awal = Number(document.getElementById(`${barang}_sisa`).value) || 0;
   const masuk = Number(document.getElementById(`${barang}_masuk`).value) || 0;

@@ -7,6 +7,7 @@ window.onload = async function () {
   await buatStok("stok-harian", stokHarian, "stok_harian");
   await buatStok("stok-gerobak", stokGerobak, "stok_gerobak");
   buatMenu();
+  hitungKeuangan();
 };
 
 // =======================
@@ -81,7 +82,7 @@ async function buatStok(id, daftar, tableName) {
 }
 
 // =======================
-// HITUNG REALTIME STOK
+// HITUNG STOK
 // =======================
 function hitungRealtime(barang) {
   const sisa = Number(document.getElementById(`${barang}_sisa`)?.value) || 0;
@@ -99,7 +100,7 @@ function hitungRealtime(barang) {
 }
 
 // =======================
-// BUAT MENU PENJUALAN
+// BUAT MENU
 // =======================
 function buatMenu() {
   const tbody = document.getElementById("penjualan");
@@ -120,7 +121,7 @@ function buatMenu() {
 }
 
 // =======================
-// SINKRON PAKAI KE QTY
+// SINKRON STOK -> QTY
 // =======================
 function sinkronQty(barang, qty) {
   const mapping = {
@@ -143,7 +144,7 @@ function sinkronQty(barang, qty) {
 }
 
 // =======================
-// HITUNG TOTAL MENU
+// HITUNG MENU
 // =======================
 function hitungMenu(nama) {
   const menu = menuList.find(x => x.nama === nama);
@@ -153,6 +154,62 @@ function hitungMenu(nama) {
   const total = qty * menu.harga;
 
   document.getElementById(`${nama}_total`).value = total;
+
+  hitungTotalPenjualan();
+}
+
+// =======================
+// TOTAL PENJUALAN
+// =======================
+function hitungTotalPenjualan() {
+  let total = 0;
+
+  for (let item of menuList) {
+    total += Number(document.getElementById(`${item.nama}_total`)?.value) || 0;
+  }
+
+  document.getElementById("total-penjualan").innerText = total;
+
+  hitungSisa();
+}
+
+// =======================
+// TOTAL KEUANGAN
+// =======================
+function hitungKeuangan() {
+  const bonus = Number(document.getElementById("bonus")?.value) || 0;
+  const shopee = Number(document.getElementById("shopee")?.value) || 0;
+  const qris = Number(document.getElementById("qris")?.value) || 0;
+  const pengeluaran = Number(document.getElementById("pengeluaran")?.value) || 0;
+  const pengeluaran1 = Number(document.getElementById("pengeluaran1")?.value) || 0;
+  const pengeluaran2 = Number(document.getElementById("pengeluaran2")?.value) || 0;
+  const pengeluaran3 = Number(document.getElementById("pengeluaran3")?.value) || 0;
+  const pengeluaran4 = Number(document.getElementById("pengeluaran4")?.value) || 0;
+  const pengeluaran5 = Number(document.getElementById("pengeluaran5")?.value) || 0;
+
+  const totalKeuangan =
+    bonus + shopee + qris + pengeluaran +
+    pengeluaran1 + pengeluaran2 + pengeluaran3 +
+    pengeluaran4 + pengeluaran5;
+
+  document.getElementById("total-keuangan").innerText = totalKeuangan;
+
+  hitungSisa();
+}
+
+// =======================
+// SISA UANG
+// =======================
+function hitungSisa() {
+  const totalPenjualan =
+    Number(document.getElementById("total-penjualan")?.innerText) || 0;
+
+  const totalKeuangan =
+    Number(document.getElementById("total-keuangan")?.innerText) || 0;
+
+  const sisa = totalPenjualan - totalKeuangan;
+
+  document.getElementById("sisa-uang").innerText = sisa;
 }
 
 // =======================
@@ -166,25 +223,18 @@ async function simpanSemua() {
     return;
   }
 
-  let totalPenjualan = 0;
-
   try {
-    // STOK HARIAN
     for (let barang of stokHarian) {
       await simpanStok("stok_harian", barang, tanggal);
     }
 
-    // STOK GEROBAK
     for (let barang of stokGerobak) {
       await simpanStok("stok_gerobak", barang, tanggal);
     }
 
-    // PENJUALAN
     for (let item of menuList) {
       const qty = Number(document.getElementById(`${item.nama}_qty`)?.value) || 0;
-      const total = qty * item.harga;
-
-      totalPenjualan += total;
+      const total = Number(document.getElementById(`${item.nama}_total`)?.value) || 0;
 
       await supabaseClient.from("penjualan").insert([{
         tanggal,
@@ -195,52 +245,30 @@ async function simpanSemua() {
       }]);
     }
 
-    // KEUANGAN
-    const bonus = Number(document.getElementById("bonus")?.value) || 0;
-    const shopee = Number(document.getElementById("shopee")?.value) || 0;
-    const qris = Number(document.getElementById("qris")?.value) || 0;
-    const pengeluaran = Number(document.getElementById("pengeluaran")?.value) || 0;
-    const pengeluaran1 = Number(document.getElementById("pengeluaran1")?.value) || 0;
-    const pengeluaran2 = Number(document.getElementById("pengeluaran2")?.value) || 0;
-    const pengeluaran3 = Number(document.getElementById("pengeluaran3")?.value) || 0;
-    const pengeluaran4 = Number(document.getElementById("pengeluaran4")?.value) || 0;
-    const pengeluaran5 = Number(document.getElementById("pengeluaran5")?.value) || 0;
-
     const total_pengeluaran =
-      pengeluaran +
-      pengeluaran1 +
-      pengeluaran2 +
-      pengeluaran3 +
-      pengeluaran4 +
-      pengeluaran5;
+      Number(document.getElementById("total-keuangan").innerText) || 0;
 
-    const uang_masuk = totalPenjualan;
+    const uang_masuk =
+      Number(document.getElementById("total-penjualan").innerText) || 0;
 
     const sisa =
-      totalPenjualan -
-      (total_pengeluaran + bonus + shopee + qris);
+      Number(document.getElementById("sisa-uang").innerText) || 0;
 
-    const { error } = await supabaseClient.from("keuangan").insert([{
+    await supabaseClient.from("keuangan").insert([{
       tanggal,
-      bonus,
-      shopee,
-      qris,
-      pengeluaran,
-      pengeluaran1,
-      pengeluaran2,
-      pengeluaran3,
-      pengeluaran4,
-      pengeluaran5,
+      bonus: Number(document.getElementById("bonus").value) || 0,
+      shopee: Number(document.getElementById("shopee").value) || 0,
+      qris: Number(document.getElementById("qris").value) || 0,
+      pengeluaran: Number(document.getElementById("pengeluaran").value) || 0,
+      pengeluaran1: Number(document.getElementById("pengeluaran1").value) || 0,
+      pengeluaran2: Number(document.getElementById("pengeluaran2").value) || 0,
+      pengeluaran3: Number(document.getElementById("pengeluaran3").value) || 0,
+      pengeluaran4: Number(document.getElementById("pengeluaran4").value) || 0,
+      pengeluaran5: Number(document.getElementById("pengeluaran5").value) || 0,
       total_pengeluaran,
       uang_masuk,
       sisa
     }]);
-
-    if (error) {
-      console.log(error);
-      alert("Gagal simpan keuangan");
-      return;
-    }
 
     alert("Semua data berhasil disimpan");
     window.location.href = "history.html";

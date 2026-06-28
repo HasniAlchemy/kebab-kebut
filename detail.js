@@ -2,91 +2,179 @@ window.onload = async function () {
   const params = new URLSearchParams(window.location.search);
   const tanggal = params.get("tanggal");
 
-  document.getElementById("tanggal-detail").innerText = tanggal;
+  if (!tanggal) {
+    alert("Tanggal tidak ditemukan");
+    return;
+  }
 
-  loadStokHarian(tanggal);
-  loadStokGerobak(tanggal);
-  loadPenjualan(tanggal);
-  loadKeuangan(tanggal);
+  document.getElementById("judul-tanggal").innerText =
+    "Detail Tanggal: " + tanggal;
+
+  await loadStokHarian(tanggal);
+  await loadStokGerobak(tanggal);
+  await loadPenjualan(tanggal);
+  await loadKeuangan(tanggal);
 };
 
+// =====================
+// STOK HARIAN
+// =====================
 async function loadStokHarian(tanggal) {
-  const { data } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("stok_harian")
     .select("*")
     .eq("tanggal", tanggal);
 
-  renderStok("stok-harian-detail", "Stok Harian", data);
+  console.log("stok harian:", data, error);
+
+  const tbody = document.getElementById("detail-stok-harian");
+  tbody.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7">Tidak ada data</td></tr>`;
+    return;
+  }
+
+  data.forEach(item => {
+    if (
+      Number(item.sisa_awal) > 0 ||
+      Number(item.masuk) > 0 ||
+      Number(item.pakai) > 0 ||
+      Number(item.rusak) > 0
+    ) {
+      tbody.innerHTML += `
+        <tr>
+          <td>${item.barang}</td>
+          <td>${item.sisa_awal}</td>
+          <td>${item.masuk}</td>
+          <td>${item.jumlah}</td>
+          <td>${item.pakai}</td>
+          <td>${item.rusak}</td>
+          <td>${item.sisa_akhir}</td>
+        </tr>
+      `;
+    }
+  });
 }
 
+// =====================
+// STOK GEROBAK
+// =====================
 async function loadStokGerobak(tanggal) {
-  const { data } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("stok_gerobak")
     .select("*")
     .eq("tanggal", tanggal);
 
-  renderStok("stok-gerobak-detail", "Stok Gerobak", data);
-}
+  console.log("stok gerobak:", data, error);
 
-function renderStok(id, title, data) {
-  let html = `<h2>${title}</h2><table>
-  <tr><th>Barang</th><th>Masuk</th><th>Pakai</th><th>Rusak</th></tr>`;
+  const tbody = document.getElementById("detail-stok-gerobak");
+  tbody.innerHTML = "";
 
-  data?.forEach(item => {
-    html += `
-      <tr>
-        <td>${item.barang}</td>
-        <td>${item.masuk}</td>
-        <td>${item.pakai}</td>
-        <td>${item.rusak}</td>
-      </tr>
-    `;
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7">Tidak ada data</td></tr>`;
+    return;
+  }
+
+  data.forEach(item => {
+    if (
+      Number(item.sisa_awal) > 0 ||
+      Number(item.masuk) > 0 ||
+      Number(item.pakai) > 0 ||
+      Number(item.rusak) > 0
+    ) {
+      tbody.innerHTML += `
+        <tr>
+          <td>${item.barang}</td>
+          <td>${item.sisa_awal}</td>
+          <td>${item.masuk}</td>
+          <td>${item.jumlah}</td>
+          <td>${item.pakai}</td>
+          <td>${item.rusak}</td>
+          <td>${item.sisa_akhir}</td>
+        </tr>
+      `;
+    }
   });
-
-  html += "</table>";
-  document.getElementById(id).innerHTML = html;
 }
 
+// =====================
+// PENJUALAN
+// =====================
 async function loadPenjualan(tanggal) {
-  const { data } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("penjualan")
     .select("*")
     .eq("tanggal", tanggal);
 
-  let html = `<h2>Penjualan</h2><table>
-  <tr><th>Menu</th><th>Qty</th><th>Total</th></tr>`;
+  console.log("penjualan:", data, error);
 
-  data?.forEach(item => {
-    html += `
-      <tr>
-        <td>${item.menu}</td>
-        <td>${item.qty}</td>
-        <td>${item.total}</td>
-      </tr>
-    `;
+  const tbody = document.getElementById("detail-penjualan");
+  tbody.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4">Tidak ada data</td></tr>`;
+    return;
+  }
+
+  data.forEach(item => {
+    if (Number(item.qty) > 0) {
+      tbody.innerHTML += `
+        <tr>
+          <td>${item.menu}</td>
+          <td>${item.harga}</td>
+          <td>${item.qty}</td>
+          <td>${item.total}</td>
+        </tr>
+      `;
+    }
   });
-
-  html += "</table>";
-  document.getElementById("penjualan-detail").innerHTML = html;
 }
 
+// =====================
+// KEUANGAN
+// =====================
 async function loadKeuangan(tanggal) {
-  const { data } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("keuangan")
     .select("*")
     .eq("tanggal", tanggal);
 
-  if (!data?.length) return;
+  console.log("keuangan:", data, error);
+
+  const tbody = document.getElementById("detail-keuangan");
+  tbody.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="2">Tidak ada data</td></tr>`;
+    return;
+  }
 
   const k = data[0];
 
-  document.getElementById("keuangan-detail").innerHTML = `
-    <h2>Keuangan</h2>
-    <p>Bonus: ${k.bonus}</p>
-    <p>Shopee: ${k.shopee}</p>
-    <p>QRIS: ${k.qris}</p>
-    <p>Total Pengeluaran: ${k.total_pengeluaran}</p>
-    <p>Uang Masuk: ${k.uang_masuk}</p>
-    <p>Sisa: ${k.sisa}</p>
-  `;
+  const fields = [
+    ["Bonus", k.bonus],
+    ["Shopee", k.shopee],
+    ["QRIS", k.qris],
+    ["Pengeluaran", k.pengeluaran],
+    ["Pengeluaran 1", k.pengeluaran1],
+    ["Pengeluaran 2", k.pengeluaran2],
+    ["Pengeluaran 3", k.pengeluaran3],
+    ["Pengeluaran 4", k.pengeluaran4],
+    ["Pengeluaran 5", k.pengeluaran5],
+    ["Total Pengeluaran", k.total_pengeluaran],
+    ["Uang Masuk", k.uang_masuk],
+    ["Sisa", k.sisa]
+  ];
+
+  fields.forEach(([nama, nilai]) => {
+    if (Number(nilai) > 0) {
+      tbody.innerHTML += `
+        <tr>
+          <td>${nama}</td>
+          <td>${nilai}</td>
+        </tr>
+      `;
+    }
+  });
 }

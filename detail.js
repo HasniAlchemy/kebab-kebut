@@ -117,8 +117,12 @@ async function loadPenjualan(tanggal) {
     return;
   }
 
+  let totalSemua = 0;
+
   data.forEach(item => {
     if (Number(item.qty) > 0) {
+      totalSemua += Number(item.total);
+
       tbody.innerHTML += `
         <tr>
           <td>${item.menu}</td>
@@ -129,6 +133,14 @@ async function loadPenjualan(tanggal) {
       `;
     }
   });
+
+  // tambah total keseluruhan
+  tbody.innerHTML += `
+    <tr>
+      <td colspan="3"><b>Total Penjualan</b></td>
+      <td><b>${totalSemua}</b></td>
+    </tr>
+  `;
 }
 
 // =====================

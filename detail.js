@@ -5,150 +5,188 @@ window.onload = async function () {
   document.getElementById("tanggal-detail").innerText =
     "Tanggal: " + tanggal;
 
-  loadStokHarian(tanggal);
-  loadStokGerobak(tanggal);
-  loadPenjualan(tanggal);
-  loadKeuangan(tanggal);
+  await loadStokHarian(tanggal);
+  await loadStokGerobak(tanggal);
+  await loadPenjualan(tanggal);
+  await loadKeuangan(tanggal);
 };
 
+// ambil data per tanggal aman
+function filterTanggal(query, tanggal) {
+  return query
+    .gte("tanggal", tanggal)
+    .lt("tanggal", tanggal + "T23:59:59");
+}
+
 async function loadStokHarian(tanggal) {
-  const { data } = await supabaseClient
-    .from("stok_harian")
-    .select("*")
-    .eq("tanggal", tanggal);
+  const { data, error } = await filterTanggal(
+    supabaseClient.from("stok_harian").select("*"),
+    tanggal
+  );
 
-  let html = `<h2>Stok Harian</h2><table>
-<tr>
-<th>Barang</th>
-<th>Sisa Awal</th>
-<th>Masuk</th>
-<th>Jumlah</th>
-<th>Pakai</th>
-<th>Rusak</th>
-<th>Sisa Akhir</th>
-</tr>`;
+  console.log("stok harian:", data, error);
 
-  data.forEach(item => {
+  let html = `
+    <h2>Stok Harian</h2>
+    <table>
+      <tr>
+        <th>Barang</th>
+        <th>Sisa Awal</th>
+        <th>Masuk</th>
+        <th>Jumlah</th>
+        <th>Pakai</th>
+        <th>Rusak</th>
+        <th>Sisa Akhir</th>
+      </tr>
+  `;
+
+  data?.forEach(item => {
     if (
-      item.sisa_awal > 0 ||
-      item.masuk > 0 ||
-      item.pakai > 0 ||
-      item.rusak > 0
+      Number(item.sisa_awal) > 0 ||
+      Number(item.masuk) > 0 ||
+      Number(item.pakai) > 0 ||
+      Number(item.rusak) > 0
     ) {
       html += `
       <tr>
-      <td>${item.barang}</td>
-      <td>${item.sisa_awal}</td>
-      <td>${item.masuk}</td>
-      <td>${item.jumlah}</td>
-      <td>${item.pakai}</td>
-      <td>${item.rusak}</td>
-      <td>${item.sisa_akhir}</td>
-      </tr>`;
+        <td>${item.barang}</td>
+        <td>${item.sisa_awal}</td>
+        <td>${item.masuk}</td>
+        <td>${item.jumlah}</td>
+        <td>${item.pakai}</td>
+        <td>${item.rusak}</td>
+        <td>${item.sisa_akhir}</td>
+      </tr>
+      `;
     }
   });
 
-  html += `</table>`;
+  html += "</table>";
   document.getElementById("stok-harian-detail").innerHTML = html;
 }
 
 async function loadStokGerobak(tanggal) {
-  const { data } = await supabaseClient
-    .from("stok_gerobak")
-    .select("*")
-    .eq("tanggal", tanggal);
+  const { data } = await filterTanggal(
+    supabaseClient.from("stok_gerobak").select("*"),
+    tanggal
+  );
 
-  let html = `<h2>Stok Gerobak</h2><table>
-<tr>
-<th>Barang</th>
-<th>Sisa Awal</th>
-<th>Masuk</th>
-<th>Jumlah</th>
-<th>Pakai</th>
-<th>Rusak</th>
-<th>Sisa Akhir</th>
-</tr>`;
+  let html = `
+    <h2>Stok Gerobak</h2>
+    <table>
+      <tr>
+        <th>Barang</th>
+        <th>Sisa Awal</th>
+        <th>Masuk</th>
+        <th>Jumlah</th>
+        <th>Pakai</th>
+        <th>Rusak</th>
+        <th>Sisa Akhir</th>
+      </tr>
+  `;
 
-  data.forEach(item => {
+  data?.forEach(item => {
     if (
-      item.sisa_awal > 0 ||
-      item.masuk > 0 ||
-      item.pakai > 0 ||
-      item.rusak > 0
+      Number(item.sisa_awal) > 0 ||
+      Number(item.masuk) > 0 ||
+      Number(item.pakai) > 0 ||
+      Number(item.rusak) > 0
     ) {
       html += `
       <tr>
-      <td>${item.barang}</td>
-      <td>${item.sisa_awal}</td>
-      <td>${item.masuk}</td>
-      <td>${item.jumlah}</td>
-      <td>${item.pakai}</td>
-      <td>${item.rusak}</td>
-      <td>${item.sisa_akhir}</td>
-      </tr>`;
+        <td>${item.barang}</td>
+        <td>${item.sisa_awal}</td>
+        <td>${item.masuk}</td>
+        <td>${item.jumlah}</td>
+        <td>${item.pakai}</td>
+        <td>${item.rusak}</td>
+        <td>${item.sisa_akhir}</td>
+      </tr>
+      `;
     }
   });
 
-  html += `</table>`;
+  html += "</table>";
   document.getElementById("stok-gerobak-detail").innerHTML = html;
 }
 
 async function loadPenjualan(tanggal) {
-  const { data } = await supabaseClient
-    .from("penjualan")
-    .select("*")
-    .eq("tanggal", tanggal);
+  const { data } = await filterTanggal(
+    supabaseClient.from("penjualan").select("*"),
+    tanggal
+  );
 
-  let html = `<h2>Penjualan</h2><table>
-<tr>
-<th>Menu</th>
-<th>Harga</th>
-<th>Qty</th>
-<th>Total</th>
-</tr>`;
+  let html = `
+    <h2>Penjualan</h2>
+    <table>
+      <tr>
+        <th>Menu</th>
+        <th>Harga</th>
+        <th>Qty</th>
+        <th>Total</th>
+      </tr>
+  `;
 
-  data.forEach(item => {
-    if (item.qty > 0) {
+  data?.forEach(item => {
+    if (Number(item.qty) > 0) {
       html += `
       <tr>
-      <td>${item.menu}</td>
-      <td>${item.harga}</td>
-      <td>${item.qty}</td>
-      <td>${item.total}</td>
-      </tr>`;
+        <td>${item.menu}</td>
+        <td>${item.harga}</td>
+        <td>${item.qty}</td>
+        <td>${item.total}</td>
+      </tr>
+      `;
     }
   });
 
-  html += `</table>`;
+  html += "</table>";
   document.getElementById("penjualan-detail").innerHTML = html;
 }
 
 async function loadKeuangan(tanggal) {
-  const { data } = await supabaseClient
-    .from("keuangan")
-    .select("*")
-    .eq("tanggal", tanggal)
-    .single();
+  const { data } = await filterTanggal(
+    supabaseClient.from("keuangan").select("*"),
+    tanggal
+  );
 
-  if (!data) return;
+  if (!data || data.length === 0) return;
+
+  const k = data[0];
 
   let html = `
-  <h2>Keuangan</h2>
-  <table>
-    <tr><td>Bonus</td><td>${data.bonus}</td></tr>
-    <tr><td>Shopee</td><td>${data.shopee}</td></tr>
-    <tr><td>QRIS</td><td>${data.qris}</td></tr>
-    <tr><td>Pengeluaran</td><td>${data.pengeluaran}</td></tr>
-    <tr><td>Pengeluaran 1</td><td>${data.pengeluaran1}</td></tr>
-    <tr><td>Pengeluaran 2</td><td>${data.pengeluaran2}</td></tr>
-    <tr><td>Pengeluaran 3</td><td>${data.pengeluaran3}</td></tr>
-    <tr><td>Pengeluaran 4</td><td>${data.pengeluaran4}</td></tr>
-    <tr><td>Pengeluaran 5</td><td>${data.pengeluaran5}</td></tr>
-    <tr><td>Total Pengeluaran</td><td>${data.total_pengeluaran}</td></tr>
-    <tr><td>Uang Masuk</td><td>${data.uang_masuk}</td></tr>
-    <tr><td>Sisa</td><td>${data.sisa}</td></tr>
-  </table>
+    <h2>Keuangan</h2>
+    <table>
+      <tr><th>Keterangan</th><th>Nominal</th></tr>
   `;
+
+  const fields = [
+    ["Bonus", k.bonus],
+    ["Shopee", k.shopee],
+    ["QRIS", k.qris],
+    ["Pengeluaran", k.pengeluaran],
+    ["Pengeluaran 1", k.pengeluaran1],
+    ["Pengeluaran 2", k.pengeluaran2],
+    ["Pengeluaran 3", k.pengeluaran3],
+    ["Pengeluaran 4", k.pengeluaran4],
+    ["Pengeluaran 5", k.pengeluaran5],
+    ["Total Pengeluaran", k.total_pengeluaran],
+    ["Uang Masuk", k.uang_masuk],
+    ["Sisa", k.sisa]
+  ];
+
+  fields.forEach(([nama, nilai]) => {
+    if (Number(nilai) > 0) {
+      html += `
+        <tr>
+          <td>${nama}</td>
+          <td>${nilai}</td>
+        </tr>
+      `;
+    }
+  });
+
+  html += "</table>";
 
   document.getElementById("keuangan-detail").innerHTML = html;
 }

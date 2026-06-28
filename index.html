@@ -12,6 +12,7 @@
 
   <h1>Pembukuan Kebab Kebut</h1>
 
+  <!-- TANGGAL -->
   <div class="section">
     <label for="tanggal">Tanggal</label>
     <input type="date" id="tanggal">
@@ -73,19 +74,87 @@
     <h3>Total Penjualan: Rp <span id="total-penjualan">0</span></h3>
   </div>
 
-  <!-- KEUANGAN -->
+  <!-- KEUANGAN BARU -->
   <div class="section">
     <h2>Keuangan</h2>
 
-    <input type="number" id="bonus" placeholder="Bonus" oninput="hitungKeuangan()">
-    <input type="number" id="shopee" placeholder="Shopee" oninput="hitungKeuangan()">
-    <input type="number" id="qris" placeholder="QRIS" oninput="hitungKeuangan()">
-    <input type="number" id="pengeluaran" placeholder="Pengeluaran" oninput="hitungKeuangan()">
-    <input type="number" id="pengeluaran1" placeholder="Pengeluaran 1" oninput="hitungKeuangan()">
-    <input type="number" id="pengeluaran2" placeholder="Pengeluaran 2" oninput="hitungKeuangan()">
-    <input type="number" id="pengeluaran3" placeholder="Pengeluaran 3" oninput="hitungKeuangan()">
-    <input type="number" id="pengeluaran4" placeholder="Pengeluaran 4" oninput="hitungKeuangan()">
-    <input type="number" id="pengeluaran5" placeholder="Pengeluaran 5" oninput="hitungKeuangan()">
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Jumlah</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>Bonus</td>
+          <td>
+            <input type="number" id="bonus" value="0" oninput="hitungKeuangan()">
+          </td>
+        </tr>
+
+        <tr>
+          <td>Shopee</td>
+          <td>
+            <input type="number" id="shopee" value="0" oninput="hitungKeuangan()">
+          </td>
+        </tr>
+
+        <tr>
+          <td>QRIS</td>
+          <td>
+            <input type="number" id="qris" value="0" oninput="hitungKeuangan()">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <input type="text" id="ket_pengeluaran1" placeholder="Contoh: Gas LPG">
+          </td>
+          <td>
+            <input type="number" id="pengeluaran1" value="0" oninput="hitungKeuangan()">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <input type="text" id="ket_pengeluaran2" placeholder="Contoh: Saus">
+          </td>
+          <td>
+            <input type="number" id="pengeluaran2" value="0" oninput="hitungKeuangan()">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <input type="text" id="ket_pengeluaran3" placeholder="Contoh: Minyak">
+          </td>
+          <td>
+            <input type="number" id="pengeluaran3" value="0" oninput="hitungKeuangan()">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <input type="text" id="ket_pengeluaran4" placeholder="Pengeluaran lainnya">
+          </td>
+          <td>
+            <input type="number" id="pengeluaran4" value="0" oninput="hitungKeuangan()">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <input type="text" id="ket_pengeluaran5" placeholder="Pengeluaran lainnya">
+          </td>
+          <td>
+            <input type="number" id="pengeluaran5" value="0" oninput="hitungKeuangan()">
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
 
     <h3>Total Keuangan: Rp <span id="total-keuangan">0</span></h3>
   </div>

@@ -236,30 +236,76 @@ function hitungSisa() {
 async function simpanSemua() {
   const tanggal = document.getElementById("tanggal").value;
 
-  for (let barang of stokHarian) {
-    await simpanStok("stok_harian", barang, tanggal);
-  }
-
-  for (let barang of stokGerobak) {
-    await simpanStok("stok_gerobak", barang, tanggal);
-  }
-
-  for (let item of menuList) {
-    const id = safeId(item.nama);
-
-    const qty = Number(document.getElementById(`${id}_qty`).value) || 0;
-    const total = Number(document.getElementById(`${id}_total`).value) || 0;
-
-    if (qty > 0) {
-      await supabaseClient.from("penjualan").insert([{
-        tanggal,
-        menu: item.nama,
-        harga: item.harga,
-        qty,
-        total
-      }]);
+  try {
+    // simpan stok harian
+    for (let barang of stokHarian) {
+      await simpanStok("stok_harian", barang, tanggal);
     }
+
+    // simpan stok gerobak
+    for (let barang of stokGerobak) {
+      await simpanStok("stok_gerobak", barang, tanggal);
+    }
+
+    // simpan penjualan
+    for (let item of menuList) {
+      const qty = Number(document.getElementById(`${item.nama}_qty`)?.value) || 0;
+      const total = Number(document.getElementById(`${item.nama}_total`)?.value) || 0;
+
+      if (qty > 0) {
+        const { error } = await supabaseClient.from("penjualan").insert([{
+          tanggal,
+          menu: item.nama,
+          harga: item.harga,
+          qty,
+          total
+        }]);
+
+        if (error) {
+          console.error("Error penjualan:", error);
+        }
+      }
+    }
+
+    // simpan keuangan
+    const { error } = await supabaseClient.from("keuangan").insert([{
+      tanggal,
+
+      bonus: Number(document.getElementById("bonus")?.value) || 0,
+      shopee: Number(document.getElementById("shopee")?.value) || 0,
+      qris: Number(document.getElementById("qris")?.value) || 0,
+
+      pengeluaran1: Number(document.getElementById("pengeluaran1")?.value) || 0,
+      pengeluaran2: Number(document.getElementById("pengeluaran2")?.value) || 0,
+      pengeluaran3: Number(document.getElementById("pengeluaran3")?.value) || 0,
+      pengeluaran4: Number(document.getElementById("pengeluaran4")?.value) || 0,
+      pengeluaran5: Number(document.getElementById("pengeluaran5")?.value) || 0,
+
+      ket_pengeluaran1: document.getElementById("ket_pengeluaran1")?.value || "",
+      ket_pengeluaran2: document.getElementById("ket_pengeluaran2")?.value || "",
+      ket_pengeluaran3: document.getElementById("ket_pengeluaran3")?.value || "",
+      ket_pengeluaran4: document.getElementById("ket_pengeluaran4")?.value || "",
+      ket_pengeluaran5: document.getElementById("ket_pengeluaran5")?.value || "",
+
+      total_pengeluaran: Number(document.getElementById("total-keuangan")?.innerText) || 0,
+      uang_masuk: Number(document.getElementById("total-penjualan")?.innerText) || 0,
+      sisa: Number(document.getElementById("sisa-uang")?.innerText) || 0
+    }]);
+
+    if (error) {
+      console.error("Error keuangan:", error);
+      alert("Gagal simpan keuangan");
+      return;
+    }
+
+    alert("Data berhasil disimpan");
+    window.location.href = "history.html";
+
+  } catch (err) {
+    console.error("Simpan error:", err);
+    alert("Terjadi error saat menyimpan");
   }
+}
 
   await supabaseClient.from("keuangan").insert([{
     tanggal,

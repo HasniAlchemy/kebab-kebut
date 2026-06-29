@@ -2,6 +2,13 @@ let stokHarian = [];
 let stokGerobak = [];
 let menuList = [];
 
+// =======================
+// BUAT ID AMAN
+// =======================
+function buatId(teks) {
+  return teks.replace(/\s+/g, "_").replace(/[^\w]/g, "");
+}
+
 window.onload = async function () {
   await ambilMaster();
   await buatStok("stok-harian", stokHarian, "stok_harian");
@@ -103,12 +110,14 @@ function buatMenu() {
   tbody.innerHTML = "";
 
   menuList.forEach(item => {
+    const idMenu = buatId(item.nama);
+
     tbody.innerHTML += `
       <tr>
         <td>${item.nama}</td>
         <td>${item.harga}</td>
-        <td><input type="number" id="${item.nama}_qty" value="0" oninput="hitungMenu('${item.nama}')"></td>
-        <td><input type="number" id="${item.nama}_total" readonly></td>
+        <td><input type="number" id="${idMenu}_qty" value="0" oninput="hitungMenu('${item.nama}')"></td>
+        <td><input type="number" id="${idMenu}_total" readonly></td>
       </tr>
     `;
 
@@ -129,7 +138,9 @@ function sinkronQty(barang, qty) {
   };
 
   if (mapping[barang]) {
-    const input = document.getElementById(`${mapping[barang]}_qty`);
+    const idMenu = buatId(mapping[barang]);
+    const input = document.getElementById(`${idMenu}_qty`);
+
     if (input) {
       input.value = qty;
       hitungMenu(mapping[barang]);
@@ -144,10 +155,12 @@ function hitungMenu(nama) {
   const menu = menuList.find(x => x.nama === nama);
   if (!menu) return;
 
-  const qty = Number(document.getElementById(`${nama}_qty`).value) || 0;
+  const idMenu = buatId(nama);
+
+  const qty = Number(document.getElementById(`${idMenu}_qty`).value) || 0;
   const total = qty * menu.harga;
 
-  document.getElementById(`${nama}_total`).value = total;
+  document.getElementById(`${idMenu}_total`).value = total;
 
   hitungTotalPenjualan();
 }
@@ -159,7 +172,8 @@ function hitungTotalPenjualan() {
   let total = 0;
 
   menuList.forEach(item => {
-    total += Number(document.getElementById(`${item.nama}_total`).value) || 0;
+    const idMenu = buatId(item.nama);
+    total += Number(document.getElementById(`${idMenu}_total`)?.value) || 0;
   });
 
   document.getElementById("total-penjualan").innerText = total;
@@ -202,7 +216,7 @@ function hitungSisa() {
 }
 
 // =======================
-// SIMPAN SEMUA (FIX ANTI DOUBLE)
+// SIMPAN SEMUA (ANTI DOUBLE)
 // =======================
 async function simpanSemua() {
   const tanggal = document.getElementById("tanggal").value;
@@ -212,26 +226,28 @@ async function simpanSemua() {
     return;
   }
 
-  // HAPUS DATA LAMA DULU
+  // hapus dulu data tanggal itu supaya tidak double
   await supabaseClient.from("stok_harian").delete().eq("tanggal", tanggal);
   await supabaseClient.from("stok_gerobak").delete().eq("tanggal", tanggal);
   await supabaseClient.from("penjualan").delete().eq("tanggal", tanggal);
   await supabaseClient.from("keuangan").delete().eq("tanggal", tanggal);
 
-  // SIMPAN STOK HARIAN
+  // simpan stok harian
   for (let barang of stokHarian) {
     await simpanStok("stok_harian", barang, tanggal);
   }
 
-  // SIMPAN STOK GEROBAK
+  // simpan stok gerobak
   for (let barang of stokGerobak) {
     await simpanStok("stok_gerobak", barang, tanggal);
   }
 
-  // SIMPAN PENJUALAN
+  // simpan penjualan
   for (let item of menuList) {
-    const qty = Number(document.getElementById(`${item.nama}_qty`).value) || 0;
-    const total = Number(document.getElementById(`${item.nama}_total`).value) || 0;
+    const idMenu = buatId(item.nama);
+
+    const qty = Number(document.getElementById(`${idMenu}_qty`).value) || 0;
+    const total = Number(document.getElementById(`${idMenu}_total`).value) || 0;
 
     if (qty > 0) {
       await supabaseClient.from("penjualan").insert([{
@@ -244,17 +260,19 @@ async function simpanSemua() {
     }
   }
 
-  // SIMPAN KEUANGAN
+  // simpan keuangan
   await supabaseClient.from("keuangan").insert([{
     tanggal,
     bonus: Number(document.getElementById("bonus").value) || 0,
     shopee: Number(document.getElementById("shopee").value) || 0,
     qris: Number(document.getElementById("qris").value) || 0,
+
     pengeluaran1: Number(document.getElementById("pengeluaran1").value) || 0,
     pengeluaran2: Number(document.getElementById("pengeluaran2").value) || 0,
     pengeluaran3: Number(document.getElementById("pengeluaran3").value) || 0,
     pengeluaran4: Number(document.getElementById("pengeluaran4").value) || 0,
     pengeluaran5: Number(document.getElementById("pengeluaran5").value) || 0,
+
     total_pengeluaran: Number(document.getElementById("total-keuangan").innerText),
     uang_masuk: Number(document.getElementById("total-penjualan").innerText),
     sisa: Number(document.getElementById("sisa-uang").innerText)
